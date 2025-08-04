@@ -1,21 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { useLaunchDarkly } from './hooks/useLaunchDarkly';
-import { analyticsService } from './services/analytics';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import { Header } from './components/Header';
-import { LaunchDarklyDashboard } from './components/LaunchDarklyDashboard';
 import { BrunchMenu } from './components/BrunchMenu';
-import { AnalyticsDashboard } from './components/AnalyticsDashboard';
 import { OrderSummary } from './components/OrderSummary';
 import { LoadingScreen } from './components/LoadingScreen';
-
-export interface Analytics {
-  pageViews: number;
-  orderConversions: number;
-  averageOrderValue: number;
-  userEngagement: number;
-  flagToggles: number;
-  mostPopularItems: string[];
-}
+import { Plate } from './components/Plate';
+import { Checkout } from './components/Checkout';
+import { UserProfile } from './components/UserProfile';
 
 export interface OrderItem {
   id: string;
@@ -23,69 +15,29 @@ export interface OrderItem {
   price: number;
   dietary: string[];
   quantity: number;
+  image: string;
 }
 
 function App() {
-  const { flags, isLoading, isConnected, trackFlagInteraction, updateUserContext, user } = useLaunchDarkly();
-
-  const [analytics, setAnalytics] = useState<Analytics>({
-    pageViews: 1247,
-    orderConversions: 89,
-    averageOrderValue: 24.50,
-    userEngagement: 76,
-    flagToggles: 0,
-    mostPopularItems: ['Avocado Toast', 'Pancakes', 'Eggs Benedict'],
-  });
+  const flags = useFlags();
+  const ldClient = useLDClient();
 
   const [order, setOrder] = useState<OrderItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCheckout, setIsCheckout] = useState(false);
 
-  // Initialize analytics
   useEffect(() => {
-    analyticsService.initialize();
-    analyticsService.startSession();
-    analyticsService.trackPageView('brunch_menu');
-    
-    // Set session start time for duration tracking
-    (window as any).sessionStartTime = Date.now();
-
-    return () => {
-      analyticsService.endSession();
-    };
-  }, []);
-
-  // Track user identification
-  useEffect(() => {
-    if (user) {
-      analyticsService.identify(user.key, {
-        email: user.email,
-        name: user.name,
-        dietaryPreference: flags.dietaryPreference,
-        loyaltyTier: user.custom?.loyaltyTier,
-        location: user.custom?.location
-      });
+    if (ldClient && Object.keys(flags).length > 0) {
+      setIsLoading(false);
+      ldClient.track('page_view', { path: 'brunch_menu' });
     }
-  }, [user, flags.dietaryPreference]);
-
-  const updateFlag = (key: keyof typeof flags, value: any) => {
-    trackFlagInteraction(key, value, {
-      previous_value: flags[key],
-      interaction_type: 'manual_toggle'
-    });
-    
-    setAnalytics(prev => ({ 
-      ...prev, 
-      flagToggles: prev.flagToggles + 1,
-      userEngagement: Math.min(100, prev.userEngagement + 2)
-    }));
-  };
+  }, [ldClient, flags]);
 
   const addToOrder = (item: Omit<OrderItem, 'quantity'>) => {
-    analyticsService.trackOrderEvent('item_added', {
+    ldClient?.track('order_item_added', {
       item_id: item.id,
       item_name: item.name,
       item_price: item.price,
-      dietary_tags: item.dietary,
-      user_dietary_preference: flags.dietaryPreference
     });
 
     setOrder(prev => {
@@ -99,57 +51,80 @@ function App() {
       }
       return [...prev, { ...item, quantity: 1 }];
     });
-    
-    setAnalytics(prev => ({ 
-      ...prev, 
-      orderConversions: prev.orderConversions + 1 
-    }));
   };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setAnalytics(prev => ({
-        ...prev,
-        pageViews: prev.pageViews + Math.floor(Math.random() * 3),
-      }));
-    }, 5000);
+  const handleCheckout = () => {
+    ldClient?.track('order_placed', {
+      total: order.reduce((sum, item) => sum + item.price * item.quantity, 0),
+      items: order.map(item => item.id),
+    });
+    setIsCheckout(true);
+  };
 
-    return () => clearInterval(interval);
-  }, []);
-
-  if (isLoading) {
-    return <LoadingScreen />;
+  if (isCheckout) {
+    return (
+      <motion.div
+        className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center text-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
+        <div>
+          <motion.div 
+            className="text-8xl mb-8"
+            initial={{ scale: 0.5 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+          >
+            🎉
+          </motion.div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Order Placed!</h1>
+          <p className="text-gray-600">Thanks for your order! Your delicious brunch is on its way.</p>
+          <button 
+            onClick={() => {
+              setOrder([]);
+              setIsCheckout(false);
+            }}
+            className="mt-8 bg-emerald-500 text-white font-bold py-3 px-6 rounded-lg"
+          >
+            Order Again
+          </button>
+        </div>
+      </motion.div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-50">
-      <Header />
+    <>
+      <AnimatePresence>
+        {isLoading && <LoadingScreen />}
+      </AnimatePresence>
       
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Feature Flag Controls */}
-          <div className="lg:col-span-1">
-            <LaunchDarklyDashboard 
-              flags={flags} 
-              updateFlag={updateFlag} 
-              isConnected={isConnected}
-              user={user}
-            />
-            <div className="mt-8">
-              <AnalyticsDashboard analytics={analytics} />
-            </div>
-          </div>
+      {!isLoading && (
+        <motion.div 
+          className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Header />
+          
+          <main className="container mx-auto px-4 py-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+              <div className="lg:col-span-1 space-y-8 lg:sticky top-8">
+                <UserProfile />
+                <Plate order={order} />
+                <Checkout order={order} onCheckout={handleCheckout} />
+              </div>
 
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            <BrunchMenu flags={flags} onAddToOrder={addToOrder} />
-            <div className="mt-8">
-              <OrderSummary order={order} setOrder={setOrder} flags={flags} />
+              <div className="lg:col-span-2 space-y-8">
+                <BrunchMenu onAddToOrder={addToOrder} />
+                <OrderSummary order={order} setOrder={setOrder} />
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          </main>
+        </motion.div>
+      )}
+    </>
   );
 }
 

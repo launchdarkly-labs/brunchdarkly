@@ -23,7 +23,7 @@ A stunning demo application showcasing LaunchDarkly's feature flag capabilities 
 - **Allergen Warnings**: Show/hide allergen information
 
 ### Analytics & Observability
-- **PostHog integration** for comprehensive event tracking
+- **LaunchDarkly O11y integration** for comprehensive event tracking
 - **Feature flag usage analytics** with real-time metrics
 - **User behavior tracking** including order patterns
 - **Session analytics** with engagement scoring
@@ -41,7 +41,6 @@ A stunning demo application showcasing LaunchDarkly's feature flag capabilities 
 ### Prerequisites
 - Node.js 18+ and npm
 - LaunchDarkly account (optional - works in mock mode)
-- PostHog account (optional - for analytics)
 
 ### Installation
 
@@ -64,15 +63,7 @@ A stunning demo application showcasing LaunchDarkly's feature flag capabilities 
      VITE_LAUNCHDARKLY_CLIENT_ID=your_client_side_id_here
      ```
 
-4. **Configure PostHog** (optional):
-   - Get your project API key from PostHog
-   - Add to `.env`:
-     ```
-     VITE_POSTHOG_KEY=your_posthog_key_here
-     VITE_POSTHOG_HOST=https://app.posthog.com
-     ```
-
-5. **Start the development server**:
+4. **Start the development server**:
    ```bash
    npm run dev
    ```
@@ -116,7 +107,7 @@ The application tracks these key events:
 - `user_action`: General user interactions
 
 ### Page Events
-- `$pageview`: Page navigation
+- `page_view`: Page navigation
 - Custom events for menu interactions
 
 ## 🎨 Customization
@@ -175,7 +166,6 @@ npm run build
 ### Environment Variables for Production
 ```bash
 VITE_LAUNCHDARKLY_CLIENT_ID=your_production_client_id
-VITE_POSTHOG_KEY=your_production_posthog_key
 VITE_ENVIRONMENT=production
 ```
 
@@ -194,7 +184,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - LaunchDarkly for the amazing feature flag platform
-- PostHog for analytics and observability
 - The React and Tailwind CSS communities
 - All the brunch enthusiasts who inspired this demo! 🥞☕
 

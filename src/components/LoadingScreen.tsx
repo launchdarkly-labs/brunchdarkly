@@ -1,29 +1,71 @@
 import React from 'react';
-import { Coffee, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export const LoadingScreen: React.FC = () => {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.5 } },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-50 flex items-center justify-center">
+    <motion.div 
+      className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-50 flex items-center justify-center"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+    >
       <div className="text-center">
-        <div className="relative mb-8">
-          <Coffee className="h-16 w-16 text-amber-600 mx-auto animate-bounce" />
-          <Loader2 className="h-6 w-6 text-orange-500 absolute -bottom-2 -right-2 animate-spin" />
-        </div>
+        <motion.div
+          variants={itemVariants}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <div className="text-6xl mb-4">🥞</div>
+        </motion.div>
         
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">BrunchDarkly</h1>
-        <p className="text-gray-600 mb-6">Initializing LaunchDarkly SDK...</p>
+        <motion.h1 
+          className="text-4xl font-bold text-gray-900 mt-6 mb-2"
+          variants={itemVariants}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          BrunchDarkly
+        </motion.h1>
+
+        <motion.p 
+          className="text-gray-600 mb-8"
+          variants={itemVariants}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          Loading the best brunch experience ever...
+        </motion.p>
         
-        <div className="flex items-center justify-center space-x-2">
-          <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
-          <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-          <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-        </div>
+        <motion.div 
+          className="relative w-48 h-2 bg-gray-200 rounded-full overflow-hidden mx-auto"
+          variants={itemVariants}
+          transition={{ duration: 0.5, delay: 0.8 }}
+        >
+          <motion.div 
+            className="absolute top-0 left-0 h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full"
+            initial={{ x: '-100%' }}
+            animate={{ x: '0%' }}
+            transition={{ duration: 1.5, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
+          />
+        </motion.div>
         
-        <div className="mt-8 text-sm text-gray-500">
-          <p>🥞 Loading feature flags...</p>
-          <p className="mt-1">☕ Brewing the perfect experience...</p>
-        </div>
+        <motion.div 
+          className="mt-8 text-sm text-gray-500"
+          variants={itemVariants}
+          transition={{ duration: 0.5, delay: 1 }}
+        >
+          <p>🥞 Preparing feature flags...</p>
+          <p className="mt-1">☕ Brewing your personalized menu...</p>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
