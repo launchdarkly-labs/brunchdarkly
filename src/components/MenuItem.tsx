@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useFlags } from 'launchdarkly-react-client-sdk';
-import { ChefHat, Plus, Flame, Beef, AlertTriangle } from 'lucide-react';
+import { ChefHat, Plus, AlertTriangle, Flame, Beef } from 'lucide-react';
 import { MenuItem as MenuItemType } from '../types';
 
 interface MenuItemProps {
@@ -14,6 +14,7 @@ interface MenuItemProps {
 export const MenuItem: React.FC<MenuItemProps> = ({ item, onAddToOrder, isAdding, delay }) => {
   const flags = useFlags();
   const [showNutrition, setShowNutrition] = React.useState(false);
+  
 
   return (
     <motion.div
@@ -22,6 +23,7 @@ export const MenuItem: React.FC<MenuItemProps> = ({ item, onAddToOrder, isAdding
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
+      
     >
       <img
         src={item.image}
@@ -56,8 +58,20 @@ export const MenuItem: React.FC<MenuItemProps> = ({ item, onAddToOrder, isAdding
           ))}
         </div>
 
+        
+
+
+        <button
+          onClick={() => onAddToOrder(item)}
+          disabled={isAdding}
+          className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 disabled:opacity-50"
+        >
+          <Plus className="h-5 w-5" />
+          <span>{isAdding ? 'Adding...' : 'Add to Order'}</span>
+        </button>
+
         {flags.nutritionInfo && (
-          <div className="mb-4">
+          <div className="my-4">
             <button
               onClick={() => setShowNutrition(!showNutrition)}
               className="text-xs text-gray-500 hover:text-gray-900 font-medium"
@@ -80,7 +94,7 @@ export const MenuItem: React.FC<MenuItemProps> = ({ item, onAddToOrder, isAdding
         )}
 
         {flags.allergenWarnings && item.allergens && item.allergens.length > 0 && (
-          <div className="mb-4">
+          <div className="mt-4">
             <div className="flex items-center text-xs text-yellow-600 font-medium">
               <AlertTriangle className="w-4 h-4 mr-1.5" />
               Contains: {item.allergens.join(', ')}
@@ -88,14 +102,6 @@ export const MenuItem: React.FC<MenuItemProps> = ({ item, onAddToOrder, isAdding
           </div>
         )}
 
-        <button
-          onClick={() => onAddToOrder(item)}
-          disabled={isAdding}
-          className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 disabled:opacity-50"
-        >
-          <Plus className="h-5 w-5" />
-          <span>{isAdding ? 'Adding...' : 'Add to Order'}</span>
-        </button>
       </div>
     </motion.div>
   );

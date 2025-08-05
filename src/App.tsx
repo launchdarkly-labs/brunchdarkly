@@ -5,6 +5,8 @@ import { Plus, Minus, ShoppingCart, Coffee, Eye, X } from 'lucide-react';
 import { OrderItem } from './types';
 import { PersonalizedRecommendations } from './components/PersonalizedRecommendations';
 import { BrunchMenu } from './components/BrunchMenu';
+import { WeatherWidget } from './components/WeatherWidget';
+import { UserProfile } from './components/UserProfile';
 
 function App() {
   const flags = useFlags();
@@ -131,19 +133,25 @@ function App() {
       </AnimatePresence>
 
       <main className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <WeatherWidget />
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Menu */}
           <div className="lg:col-span-2">
-            <BrunchMenu onAddToOrder={addToOrder} weather="sunny" addingItems={new Set()} />
+            <BrunchMenu onAddToOrder={addToOrder} addingItems={new Set()} />
           </div>
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-xl p-8 sticky top-8">
-              <div className="flex items-center space-x-3 mb-6">
-                <ShoppingCart className="h-6 w-6 text-emerald-600" />
-                <h2 className="text-2xl font-bold text-gray-900">Your Order</h2>
-              </div>
+          
+            <div className="space-y-8">
+              <UserProfile />
+              <div className="bg-white rounded-2xl shadow-xl p-8 sticky top-8">
+                <div className="flex items-center space-x-3 mb-6">
+                  <ShoppingCart className="h-6 w-6 text-emerald-600" />
+                  <h2 className="text-2xl font-bold text-gray-900">Your Order</h2>
+                </div>
 
               {order.length === 0 ? (
                 <div className="text-center py-8">
@@ -197,12 +205,14 @@ function App() {
                 </>
               )}
             </div>
+            </div>
           </div>
         </div>
       </main>
       <div className="container mx-auto px-4 pb-8">
         <PersonalizedRecommendations />
       </div>
+      
     </div>
   );
 }

@@ -3,22 +3,23 @@ import { motion } from 'framer-motion';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 import { OrderItem } from '../types';
 import { MenuItem } from './MenuItem';
+import { useWeather } from '../hooks/useWeather';
 
 interface BrunchMenuProps {
   onAddToOrder: (item: Omit<OrderItem, 'quantity'>) => void;
-  weather: string;
   addingItems: Set<string>;
 }
 
-export function BrunchMenu({ onAddToOrder, weather, addingItems }: BrunchMenuProps) {
+export function BrunchMenu({ onAddToOrder, addingItems }: BrunchMenuProps) {
   const flags = useFlags();
+  const { weatherCondition } = useWeather();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const menuItems = [
     {
       id: 'pancakes',
       name: 'Fluffy Pancakes',
-      price: 12.99,
+      price: 25.98,
       image: 'https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=400',
       dietary: ['vegetarian'],
       category: 'mains',
@@ -30,7 +31,7 @@ export function BrunchMenu({ onAddToOrder, weather, addingItems }: BrunchMenuPro
     {
       id: 'avocado-toast',
       name: 'Avocado Toast',
-      price: 14.99,
+      price: 29.98,
       image: 'https://images.pexels.com/photos/1351238/pexels-photo-1351238.jpeg?auto=compress&cs=tinysrgb&w=400',
       dietary: ['vegan', 'healthy'],
       category: 'mains',
@@ -42,8 +43,8 @@ export function BrunchMenu({ onAddToOrder, weather, addingItems }: BrunchMenuPro
     {
       id: 'eggs-benedict',
       name: 'Eggs Benedict',
-      price: 16.99,
-      image: 'https://images.pexels.com/photos/725991/pexels-photo-725991.jpeg?auto=compress&cs=tinysrgb&w=400',
+      price: 33.98,
+      image: 'https://images.pexels.com/photos/7663367/pexels-photo-7663367.jpeg',
       dietary: ['premium'],
       category: 'mains',
       calories: 580,
@@ -54,7 +55,7 @@ export function BrunchMenu({ onAddToOrder, weather, addingItems }: BrunchMenuPro
     {
       id: 'acai-bowl',
       name: 'Açaí Bowl',
-      price: 13.99,
+      price: 27.98,
       image: 'https://images.pexels.com/photos/1092730/pexels-photo-1092730.jpeg?auto=compress&cs=tinysrgb&w=400',
       dietary: ['vegan', 'healthy', 'gluten-free'],
       category: 'bowls',
@@ -66,8 +67,8 @@ export function BrunchMenu({ onAddToOrder, weather, addingItems }: BrunchMenuPro
     {
       id: 'french-toast',
       name: 'French Toast',
-      price: 13.99,
-      image: 'https://images.pexels.com/photos/1099680/pexels-photo-1099680.jpeg?auto=compress&cs=tinysrgb&w=400',
+      price: 27.98,
+      image: 'https://images.pexels.com/photos/30900620/pexels-photo-30900620.jpeg',
       dietary: ['vegetarian'],
       category: 'mains',
       calories: 520,
@@ -78,7 +79,7 @@ export function BrunchMenu({ onAddToOrder, weather, addingItems }: BrunchMenuPro
     {
       id: 'quinoa-bowl',
       name: 'Quinoa Power Bowl',
-      price: 15.99,
+      price: 31.98,
       image: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=400',
       dietary: ['vegan', 'healthy', 'gluten-free'],
       category: 'bowls',
@@ -90,8 +91,8 @@ export function BrunchMenu({ onAddToOrder, weather, addingItems }: BrunchMenuPro
     {
       id: 'truffle-scramble',
       name: 'Truffle Scrambled Eggs',
-      price: 22.99,
-      image: 'https://images.pexels.com/photos/566566/pexels-photo-566566.jpeg?auto=compress&cs=tinysrgb&w=400',
+      price: 45.98,
+      image: 'https://images.pexels.com/photos/2739268/pexels-photo-2739268.jpeg',
       dietary: ['premium', 'vegetarian'],
       category: 'premium',
       calories: 380,
@@ -103,7 +104,7 @@ export function BrunchMenu({ onAddToOrder, weather, addingItems }: BrunchMenuPro
     {
       id: 'wagyu-burger',
       name: 'Wagyu Brunch Burger',
-      price: 28.99,
+      price: 57.98,
       image: 'https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg?auto=compress&cs=tinysrgb&w=400',
       dietary: ['premium'],
       category: 'premium',
@@ -116,8 +117,8 @@ export function BrunchMenu({ onAddToOrder, weather, addingItems }: BrunchMenuPro
     {
       id: 'mimosa-flight',
       name: 'Mimosa Flight',
-      price: 18.99,
-      image: 'https://images.pexels.com/photos/13045860/pexels-photo-13045860.jpeg?auto=compress&cs=tinysrgb&w=400',
+      price: 37.98,
+      image: 'https://images.pexels.com/photos/33309414/pexels-photo-33309414.jpeg',
       dietary: ['drinks'],
       category: 'premium',
       calories: 250,
@@ -129,8 +130,8 @@ export function BrunchMenu({ onAddToOrder, weather, addingItems }: BrunchMenuPro
     {
       id: 'lobster-benedict',
       name: 'Lobster Benedict',
-      price: 32.99,
-      image: 'https://images.pexels.com/photos/2337491/pexels-photo-2337491.jpeg?auto=compress&cs=tinysrgb&w=400',
+      price: 65.98,
+      image: 'https://images.pexels.com/photos/8352391/pexels-photo-8352391.jpeg',
       dietary: ['premium'],
       category: 'premium',
       calories: 650,
@@ -143,18 +144,15 @@ export function BrunchMenu({ onAddToOrder, weather, addingItems }: BrunchMenuPro
 
   // Filter items based on feature flags and preferences
   const filteredItems = menuItems.filter(item => {
-
     // Dietary preference filter
     if (flags.dietaryPreference && flags.dietaryPreference !== 'all' && flags.dietaryPreference !== 'omnivore') {
       if (!item.dietary.includes(flags.dietaryPreference)) {
-        console.log('dietary preference');
         return false;
       }
     }
 
     // Category filter
     if (selectedCategory !== 'all' && item.category !== selectedCategory) {
-      console.log('category');
       return false;
     }
 
@@ -167,17 +165,11 @@ export function BrunchMenu({ onAddToOrder, weather, addingItems }: BrunchMenuPro
     
     if (flags.dynamicPricing) {
       // Weather-based pricing
-      if (weather === 'rainy' && item.dietary.includes('healthy')) {
-        adjustedPrice *= 0.9; // 10% discount on healthy items when rainy
+      if (weatherCondition === 'rainy') {
+        adjustedPrice *= 0.9; // 10% discount on all items when rainy
       }
-      if (weather === 'sunny' && item.category === 'bowls') {
-        adjustedPrice *= 1.1; // 10% premium on bowls when sunny
-      }
-      
-      // Time-based pricing (simulate peak hours)
-      const hour = new Date().getHours();
-      if (hour >= 10 && hour <= 12) { // Peak brunch hours
-        adjustedPrice *= 1.05; // 5% peak hour surcharge
+      if (weatherCondition === 'sunny') {
+        adjustedPrice *= 1.1; // 10% premium on all items when sunny
       }
     }
     
@@ -207,7 +199,7 @@ export function BrunchMenu({ onAddToOrder, weather, addingItems }: BrunchMenuPro
         {flags.weatherBasedMenu && (
           <div className="text-right">
             <p className="text-sm text-gray-500">Weather-optimized menu</p>
-            <p className="text-lg font-semibold text-emerald-600 capitalize">{weather}</p>
+            <p className="text-lg font-semibold text-emerald-600 capitalize">{weatherCondition}</p>
           </div>
         )}
       </div>
