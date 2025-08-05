@@ -1,29 +1,20 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useLDClient } from 'launchdarkly-react-client-sdk';
-import { LDContext } from 'launchdarkly-js-client-sdk';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 import { User } from 'lucide-react';
 
 export const UserProfile: React.FC = () => {
-  const ldClient = useLDClient();
-  const context = ldClient?.getContext();
-
-  const handlePreferenceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    if (context) {
-      const newContext: LDContext = {
-        ...context,
-        custom: {
-          ...context.custom,
-          dietaryPreference: e.target.value,
-        },
-      };
-      ldClient.identify(newContext);
+  const flags = useFlags();
+  
+  const getDietaryEmoji = (preference: string) => {
+    switch (preference) {
+      case 'vegan': return '🌱';
+      case 'vegetarian': return '🥗';
+      case 'gluten-free': return '🌾';
+      case 'omnivore': return '🍳';
+      default: return '🍽️';
     }
   };
-
-  if (!context) {
-    return null;
-  }
 
   return (
     <motion.div
@@ -42,24 +33,24 @@ export const UserProfile: React.FC = () => {
           <input 
             id="name"
             type="text" 
-            value={context.name} 
+            value="Demo User"
             readOnly 
             className="w-full p-2 border border-gray-200 rounded-md bg-gray-50"
           />
         </div>
         <div>
-          <label htmlFor="preference" className="text-sm font-medium text-gray-600 block mb-1">Dietary Preference</label>
-          <select
-            id="preference"
-            value={context.custom?.dietaryPreference as string || 'omnivore'}
-            onChange={handlePreferenceChange}
-            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="omnivore">🍳 Omnivore</option>
-            <option value="vegetarian">🥗 Vegetarian</option>
-            <option value="vegan">🌱 Vegan</option>
-            <option value="gluten-free">🌾 Gluten-Free</option>
-          </select>
+          <label className="text-sm font-medium text-gray-600 block mb-1">Dietary Preference</label>
+          <div className="w-full p-3 border border-gray-200 rounded-md bg-gradient-to-r from-indigo-50 to-purple-50">
+            <div className="flex items-center space-x-2">
+              <span className="text-2xl">{getDietaryEmoji(flags.dietaryPreference as string)}</span>
+              <span className="font-semibold text-gray-900 capitalize">
+                {flags.dietaryPreference || 'omnivore'}
+              </span>
+              <span className="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full whitespace-nowrap">
+                From LaunchDarkly
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </motion.div>

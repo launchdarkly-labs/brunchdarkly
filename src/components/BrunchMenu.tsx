@@ -1,176 +1,257 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useFlags } from 'launchdarkly-react-client-sdk';
-import { OrderItem } from '../App';
 import { MenuItem } from './MenuItem';
+import { OrderItem } from '../App';
 
-interface Props {
+interface BrunchMenuProps {
   onAddToOrder: (item: Omit<OrderItem, 'quantity'>) => void;
+  weather: string;
+  addingItems: Set<string>;
 }
 
-export const BrunchMenu: React.FC<Props> = ({ onAddToOrder }) => {
+export function BrunchMenu({ onAddToOrder, weather, addingItems }: BrunchMenuProps) {
   const flags = useFlags();
-  
-  const baseItems = [
-    { id: 'pancakes', name: 'Classic Pancakes', description: 'Fluffy buttermilk pancakes with maple syrup', price: 12.99, dietary: ['vegetarian'], image: '🥞', category: 'mains' },
-    { id: 'avocado-toast', name: 'Avocado Toast', description: 'Smashed avocado on artisan sourdough', price: 14.99, dietary: ['vegan', 'vegetarian'], image: '🥑', category: 'mains' },
-    { id: 'eggs-benedict', name: 'Eggs Benedict', description: 'Poached eggs with hollandaise on English muffins', price: 16.99, dietary: ['omnivore'], image: '🍳', category: 'mains' },
-    { id: 'french-toast', name: 'French Toast', description: 'Brioche French toast with berry compote', price: 13.99, dietary: ['vegetarian'], image: '🍞', category: 'mains' },
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+
+  const menuItems = [
+    {
+      id: 'pancakes',
+      name: 'Fluffy Pancakes',
+      price: 12.99,
+      image: 'https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=400',
+      dietary: ['vegetarian'],
+      category: 'mains',
+      calories: 450,
+      protein: 8,
+      allergens: ['gluten', 'eggs', 'dairy'],
+      description: 'Stack of three fluffy pancakes with maple syrup and butter'
+    },
+    {
+      id: 'avocado-toast',
+      name: 'Avocado Toast',
+      price: 14.99,
+      image: 'https://images.pexels.com/photos/1351238/pexels-photo-1351238.jpeg?auto=compress&cs=tinysrgb&w=400',
+      dietary: ['vegan', 'healthy'],
+      category: 'mains',
+      calories: 320,
+      protein: 12,
+      allergens: ['gluten'],
+      description: 'Smashed avocado on sourdough with cherry tomatoes and hemp seeds'
+    },
+    {
+      id: 'eggs-benedict',
+      name: 'Eggs Benedict',
+      price: 16.99,
+      image: 'https://images.pexels.com/photos/725991/pexels-photo-725991.jpeg?auto=compress&cs=tinysrgb&w=400',
+      dietary: ['premium'],
+      category: 'mains',
+      calories: 580,
+      protein: 25,
+      allergens: ['eggs', 'dairy', 'gluten'],
+      description: 'Poached eggs on English muffin with hollandaise sauce'
+    },
+    {
+      id: 'acai-bowl',
+      name: 'Açaí Bowl',
+      price: 13.99,
+      image: 'https://images.pexels.com/photos/1092730/pexels-photo-1092730.jpeg?auto=compress&cs=tinysrgb&w=400',
+      dietary: ['vegan', 'healthy', 'gluten-free'],
+      category: 'bowls',
+      calories: 280,
+      protein: 6,
+      allergens: [],
+      description: 'Açaí blend topped with granola, berries, and coconut flakes'
+    },
+    {
+      id: 'french-toast',
+      name: 'French Toast',
+      price: 13.99,
+      image: 'https://images.pexels.com/photos/1099680/pexels-photo-1099680.jpeg?auto=compress&cs=tinysrgb&w=400',
+      dietary: ['vegetarian'],
+      category: 'mains',
+      calories: 520,
+      protein: 15,
+      allergens: ['eggs', 'dairy', 'gluten'],
+      description: 'Thick-cut brioche French toast with cinnamon and vanilla'
+    },
+    {
+      id: 'quinoa-bowl',
+      name: 'Quinoa Power Bowl',
+      price: 15.99,
+      image: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=400',
+      dietary: ['vegan', 'healthy', 'gluten-free'],
+      category: 'bowls',
+      calories: 420,
+      protein: 18,
+      allergens: [],
+      description: 'Quinoa with roasted vegetables, chickpeas, and tahini dressing'
+    },
+    {
+      id: 'truffle-scramble',
+      name: 'Truffle Scrambled Eggs',
+      price: 22.99,
+      image: 'https://images.pexels.com/photos/566566/pexels-photo-566566.jpeg?auto=compress&cs=tinysrgb&w=400',
+      dietary: ['premium', 'vegetarian'],
+      category: 'premium',
+      calories: 380,
+      protein: 20,
+      allergens: ['eggs', 'dairy'],
+      description: 'Creamy scrambled eggs with truffle oil and chives'
+    },
+    {
+      id: 'wagyu-burger',
+      name: 'Wagyu Brunch Burger',
+      price: 28.99,
+      image: 'https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg?auto=compress&cs=tinysrgb&w=400',
+      dietary: ['premium'],
+      category: 'premium',
+      calories: 720,
+      protein: 35,
+      allergens: ['gluten', 'eggs', 'dairy'],
+      description: 'Wagyu beef patty with fried egg and truffle aioli'
+    }
   ];
 
-  const premiumItems = [
-    { id: 'truffle-scramble', name: 'Truffle Scrambled Eggs', description: 'Organic eggs with black truffle shavings', price: 28.99, dietary: ['vegetarian'], image: '🍄', category: 'premium' },
-    { id: 'lobster-benedict', name: 'Lobster Benedict', description: 'Fresh lobster with hollandaise on brioche', price: 34.99, dietary: ['omnivore'], image: '🦞', category: 'premium' },
-  ];
+  // Filter items based on feature flags and preferences
+  const filteredItems = menuItems.filter(item => {
+    // Premium items filter
+    if (item.dietary.includes('premium') && !flags.premiumItems) {
+      return false;
+    }
 
-  const veganItems = [
-    { id: 'vegan-pancakes', name: 'Vegan Pancakes', description: 'Plant-based pancakes with coconut whipped cream', price: 13.99, dietary: ['vegan', 'vegetarian'], image: '🥞', category: 'mains' },
-    { id: 'tofu-scramble', name: 'Tofu Scramble', description: 'Seasoned tofu with vegetables and nutritional yeast', price: 12.99, dietary: ['vegan', 'vegetarian'], image: '🌿', category: 'mains' },
-  ];
+    // Dietary preference filter
+    if (flags.dietaryPreference && flags.dietaryPreference !== 'all') {
+      if (!item.dietary.includes(flags.dietaryPreference)) {
+        return false;
+      }
+    }
 
-  const glutenFreeItems = [
-    { id: 'gf-pancakes', name: 'Gluten-Free Pancakes', description: 'Almond flour pancakes with sugar-free syrup', price: 15.99, dietary: ['gluten-free', 'vegetarian'], image: '🥞', category: 'mains' },
-    { id: 'quinoa-bowl', name: 'Quinoa Power Bowl', description: 'Quinoa with fresh vegetables and tahini dressing', price: 16.99, dietary: ['gluten-free', 'vegan', 'vegetarian'], image: '🥗', category: 'mains' },
-  ];
+    // Weather-based filtering
+    if (flags.weatherBasedMenu) {
+      if (weather === 'cold' && !['pancakes', 'french-toast', 'truffle-scramble'].includes(item.id)) {
+        return false;
+      }
+      if (weather === 'hot' && !['acai-bowl', 'avocado-toast', 'quinoa-bowl'].includes(item.id)) {
+        return false;
+      }
+    }
 
-  const getMenuItems = React.useCallback(() => {
-    let items = [...baseItems];
+    // Category filter
+    if (selectedCategory !== 'all' && item.category !== selectedCategory) {
+      return false;
+    }
+
+    return true;
+  });
+
+  // Apply dynamic pricing
+  const itemsWithDynamicPricing = filteredItems.map(item => {
+    let adjustedPrice = item.price;
     
-    if (flags.premiumItems) items = [...items, ...premiumItems];
-    if (flags.dietaryPreference === 'vegan') items = [...items, ...veganItems];
-    if (flags.dietaryPreference === 'gluten-free') items = [...items, ...glutenFreeItems];
+    if (flags.dynamicPricing) {
+      // Weather-based pricing
+      if (weather === 'rainy' && item.dietary.includes('healthy')) {
+        adjustedPrice *= 0.9; // 10% discount on healthy items when rainy
+      }
+      if (weather === 'sunny' && item.category === 'bowls') {
+        adjustedPrice *= 1.1; // 10% premium on bowls when sunny
+      }
+      
+      // Time-based pricing (simulate peak hours)
+      const hour = new Date().getHours();
+      if (hour >= 10 && hour <= 12) { // Peak brunch hours
+        adjustedPrice *= 1.05; // 5% peak hour surcharge
+      }
+    }
     
-    return items
-      .filter(item => {
-        if (flags.dietaryPreference === 'omnivore') return true;
-        return item.dietary.includes(flags.dietaryPreference as string);
-      })
-      .filter((item, index, self) => index === self.findIndex((t) => t.id === item.id));
-  }, [flags]);
+    return { ...item, price: Math.round(adjustedPrice * 100) / 100 };
+  });
 
-  const applyDynamicPricing = (price: number) => {
-    if (!flags.dynamicPricing) return price;
-    const hash = price.toString().split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
-    const multiplier = 0.9 + (hash & 15) / 100;
-    return Math.round(price * multiplier * 100) / 100;
-  };
-
-  const menuItems = getMenuItems();
-  
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
-  };
-  
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
+  const categories = [
+    { id: 'all', name: 'All Items', icon: '🍽️' },
+    { id: 'mains', name: 'Mains', icon: '🥞' },
+    { id: 'bowls', name: 'Bowls', icon: '🥗' },
+    { id: 'premium', name: 'Premium', icon: '⭐' }
+  ];
 
   return (
-    <motion.div 
-      className="bg-white rounded-xl shadow-lg p-6"
-      initial={{ opacity: 0, y: 50 }}
+    <motion.div
+      className="bg-white rounded-2xl shadow-xl p-8"
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
+      transition={{ duration: 0.6 }}
     >
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
-          <div className="text-3xl">🥞</div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Brunch Menu</h2>
-            <AnimatePresence mode="wait">
-              <motion.p 
-                key={flags.dietaryPreference as string}
-                className="text-gray-600"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                transition={{ duration: 0.2 }}
-              >
-                Showing {flags.dietaryPreference} options
-                {flags.premiumItems && ' • Premium'}
-                {flags.dynamicPricing && ' • Dynamic Pricing'}
-              </motion.p>
-            </AnimatePresence>
-          </div>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Brunch Menu</h2>
+          <p className="text-gray-600">Delicious options for every taste</p>
         </div>
         
-        <AnimatePresence>
-          {flags.limitedTimeOffers && (
-            <motion.div 
-              className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium"
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.5 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-            >
-              🔥 Limited Time: 20% Off!
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {flags.weatherBasedMenu && (
+          <div className="text-right">
+            <p className="text-sm text-gray-500">Weather-optimized menu</p>
+            <p className="text-lg font-semibold text-emerald-600 capitalize">{weather}</p>
+          </div>
+        )}
       </div>
 
-      <AnimatePresence>
-        {flags.personalizedRecommendations && (
-          <motion.div 
-            className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 mb-6 border border-purple-200"
-            initial={{ opacity: 0, height: 0, y: -20 }}
-            animate={{ opacity: 1, height: 'auto', y: 0 }}
-            exit={{ opacity: 0, height: 0, y: -20 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
+      {/* Category Filter */}
+      <div className="flex flex-wrap gap-2 mb-8">
+        {categories.map(category => (
+          <button
+            key={category.id}
+            onClick={() => setSelectedCategory(category.id)}
+            className={`px-4 py-2 rounded-full font-medium transition-all duration-200 ${
+              selectedCategory === category.id
+                ? 'bg-emerald-500 text-white shadow-lg'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
           >
-            <h3 className="font-semibold text-purple-900 mb-2">🎯 Recommended for you</h3>
-            <p className="text-purple-700 text-sm">
-              Based on your {flags.dietaryPreference} preferences, we suggest starting with our signature items!
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <span className="mr-2">{category.icon}</span>
+            {category.name}
+          </button>
+        ))}
+      </div>
 
-      <motion.div 
-        className="grid grid-cols-1 md:grid-cols-2 gap-6"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <AnimatePresence>
-          {menuItems.map((item) => (
-            <motion.div
-              key={item.id}
-              variants={itemVariants}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.3 }}
-              layout
-            >
-              <MenuItem
-                item={{
-                  ...item,
-                  price: applyDynamicPricing(item.price),
-                }}
-                onAddToOrder={onAddToOrder}
-              />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </motion.div>
+      {/* Limited Time Offers Banner */}
+      {flags.limitedTimeOffers && (
+        <motion.div
+          className="bg-gradient-to-r from-red-500 to-pink-500 text-white p-4 rounded-lg mb-6"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          <div className="flex items-center">
+            <span className="text-2xl mr-3">🔥</span>
+            <div>
+              <h3 className="font-bold">Limited Time Offer!</h3>
+              <p className="text-sm opacity-90">20% off all premium items this weekend</p>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
-      <AnimatePresence>
-        {menuItems.length === 0 && (
-          <motion.div 
-            className="text-center py-12"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-          >
-            <div className="text-6xl mb-4">🍽️</div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No items available</h3>
-            <p className="text-gray-600">
-              Try adjusting your dietary preferences to see more options.
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Menu Items Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {itemsWithDynamicPricing.map((item, index) => (
+          <MenuItem
+            key={item.id}
+            item={item}
+            onAddToOrder={onAddToOrder}
+            isAdding={addingItems.has(item.id)}
+            delay={index * 0.1}
+          />
+        ))}
+      </div>
+
+      {filteredItems.length === 0 && (
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">🍽️</div>
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">No items match your preferences</h3>
+          <p className="text-gray-500">Try adjusting your filters or dietary preferences</p>
+        </div>
+      )}
     </motion.div>
   );
-};
+}
