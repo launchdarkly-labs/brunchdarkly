@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useFlags } from 'launchdarkly-react-client-sdk';
-import { User } from 'lucide-react';
+import { User, Award } from 'lucide-react';
 
 export const UserProfile: React.FC = () => {
   const flags = useFlags();
@@ -52,6 +52,22 @@ export const UserProfile: React.FC = () => {
             </div>
           </div>
         </div>
+        {flags.loyaltyProgram && (
+          <div>
+            <label className="text-sm font-medium text-gray-600 block mb-1">Loyalty Points</label>
+            <div className="w-full p-3 border border-gray-200 rounded-md bg-gradient-to-r from-yellow-50 to-orange-50">
+              <div className="flex items-center space-x-2">
+                <Award className="h-6 w-6 text-yellow-600" />
+                <span className="font-semibold text-gray-900">
+                  1,250 points
+                </span>
+                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full whitespace-nowrap">
+                  Gold Tier
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </motion.div>
   );

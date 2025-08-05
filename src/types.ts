@@ -21,4 +21,6 @@ export interface MenuItem {
   protein?: number;
   allergens?: string[];
   description: string;
+  chefRecommendation?: boolean;
+  special?: boolean;
 }

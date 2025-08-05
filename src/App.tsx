@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import { Plus, Minus, ShoppingCart, Coffee, Eye, X } from 'lucide-react';
 import { OrderItem } from './types';
+import { PersonalizedRecommendations } from './components/PersonalizedRecommendations';
+import { BrunchMenu } from './components/BrunchMenu';
 
 function App() {
   const flags = useFlags();
@@ -17,45 +19,7 @@ function App() {
     }
   }, [ldClient, flags]);
 
-  const menuItems = [
-    {
-      id: 'pancakes',
-      name: 'Fluffy Pancakes',
-      price: 12.99,
-      image: 'https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=400',
-      dietary: ['vegetarian', 'omnivore']
-    },
-    {
-      id: 'avocado-toast',
-      name: 'Avocado Toast',
-      price: 14.99,
-      image: 'https://images.pexels.com/photos/1351238/pexels-photo-1351238.jpeg?auto=compress&cs=tinysrgb&w=400',
-      dietary: ['vegan', 'vegetarian', 'omnivore']
-    },
-    {
-      id: 'eggs-benedict',
-      name: 'Eggs Benedict',
-      price: 16.99,
-      image: 'https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=400',
-      dietary: ['omnivore']
-    },
-    {
-      id: 'acai-bowl',
-      name: 'Açaí Bowl',
-      price: 13.99,
-      image: 'https://images.pexels.com/photos/1092730/pexels-photo-1092730.jpeg?auto=compress&cs=tinysrgb&w=400',
-      dietary: ['vegan', 'vegetarian', 'omnivore']
-    }
-  ];
-
-  // Filter items based on dietary preference
-  const filteredItems = menuItems.filter(item => {
-    const dietaryPreference = flags.dietaryPreference as string;
-    if (!dietaryPreference || dietaryPreference === 'all') {
-      return true;
-    }
-    return item.dietary.includes(dietaryPreference);
-  });
+  
 
   const addToOrder = (item: any) => {
     console.log('Adding to order:', item.name);
@@ -170,66 +134,7 @@ function App() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Menu */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-xl p-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8">Brunch Menu</h2>
-              
-              {flags.dietaryPreference && flags.dietaryPreference !== 'all' && (
-                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-blue-800 font-medium">
-                    Showing {flags.dietaryPreference} options
-                  </p>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {filteredItems.map((item) => (
-                  <motion.div
-                    key={item.id}
-                    className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
-                    whileHover={{ y: -2 }}
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="p-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-xl font-bold text-gray-900">{item.name}</h3>
-                        <span className="text-2xl font-bold text-emerald-600">
-                          ${item.price.toFixed(2)}
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {item.dietary.map((diet) => (
-                          <span
-                            key={diet}
-                            className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium"
-                          >
-                            {diet}
-                          </span>
-                        ))}
-                      </div>
-                      <button
-                        onClick={() => addToOrder(item)}
-                        className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
-                      >
-                        <Plus className="h-5 w-5" />
-                        <span>Add to Order</span>
-                      </button>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              {filteredItems.length === 0 && (
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">🍽️</div>
-                  <h3 className="text-xl font-semibold text-gray-700 mb-2">No items match your preferences</h3>
-                  <p className="text-gray-500">Try changing your dietary preference in LaunchDarkly</p>
-                </div>
-              )}
-            </div>
+            <BrunchMenu onAddToOrder={addToOrder} weather="sunny" addingItems={new Set()} />
           </div>
 
           {/* Order Summary */}
@@ -295,6 +200,9 @@ function App() {
           </div>
         </div>
       </main>
+      <div className="container mx-auto px-4 pb-8">
+        <PersonalizedRecommendations />
+      </div>
     </div>
   );
 }

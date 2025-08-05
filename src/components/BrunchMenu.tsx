@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useFlags } from 'launchdarkly-react-client-sdk';
+import { OrderItem } from '../types';
 import { MenuItem } from './MenuItem';
-import { OrderItem } from '../App';
 
 interface BrunchMenuProps {
   onAddToOrder: (item: Omit<OrderItem, 'quantity'>) => void;
@@ -97,7 +97,8 @@ export function BrunchMenu({ onAddToOrder, weather, addingItems }: BrunchMenuPro
       calories: 380,
       protein: 20,
       allergens: ['eggs', 'dairy'],
-      description: 'Creamy scrambled eggs with truffle oil and chives'
+      description: 'Creamy scrambled eggs with truffle oil and chives',
+      chefRecommendation: true
     },
     {
       id: 'wagyu-burger',
@@ -109,36 +110,51 @@ export function BrunchMenu({ onAddToOrder, weather, addingItems }: BrunchMenuPro
       calories: 720,
       protein: 35,
       allergens: ['gluten', 'eggs', 'dairy'],
-      description: 'Wagyu beef patty with fried egg and truffle aioli'
+      description: 'Wagyu beef patty with fried egg and truffle aioli',
+      chefRecommendation: true
+    },
+    {
+      id: 'mimosa-flight',
+      name: 'Mimosa Flight',
+      price: 18.99,
+      image: 'https://images.pexels.com/photos/13045860/pexels-photo-13045860.jpeg?auto=compress&cs=tinysrgb&w=400',
+      dietary: ['drinks'],
+      category: 'premium',
+      calories: 250,
+      protein: 1,
+      allergens: [],
+      description: 'A flight of four different mimosas: classic, strawberry, mango, and pineapple',
+      special: true
+    },
+    {
+      id: 'lobster-benedict',
+      name: 'Lobster Benedict',
+      price: 32.99,
+      image: 'https://images.pexels.com/photos/2337491/pexels-photo-2337491.jpeg?auto=compress&cs=tinysrgb&w=400',
+      dietary: ['premium'],
+      category: 'premium',
+      calories: 650,
+      protein: 30,
+      allergens: ['eggs', 'dairy', 'gluten', 'shellfish'],
+      description: 'A luxurious take on the classic eggs benedict with fresh lobster meat',
+      special: true
     }
   ];
 
   // Filter items based on feature flags and preferences
   const filteredItems = menuItems.filter(item => {
-    // Premium items filter
-    if (item.dietary.includes('premium') && !flags.premiumItems) {
-      return false;
-    }
 
     // Dietary preference filter
-    if (flags.dietaryPreference && flags.dietaryPreference !== 'all') {
+    if (flags.dietaryPreference && flags.dietaryPreference !== 'all' && flags.dietaryPreference !== 'omnivore') {
       if (!item.dietary.includes(flags.dietaryPreference)) {
-        return false;
-      }
-    }
-
-    // Weather-based filtering
-    if (flags.weatherBasedMenu) {
-      if (weather === 'cold' && !['pancakes', 'french-toast', 'truffle-scramble'].includes(item.id)) {
-        return false;
-      }
-      if (weather === 'hot' && !['acai-bowl', 'avocado-toast', 'quinoa-bowl'].includes(item.id)) {
+        console.log('dietary preference');
         return false;
       }
     }
 
     // Category filter
     if (selectedCategory !== 'all' && item.category !== selectedCategory) {
+      console.log('category');
       return false;
     }
 
@@ -172,8 +188,8 @@ export function BrunchMenu({ onAddToOrder, weather, addingItems }: BrunchMenuPro
     { id: 'all', name: 'All Items', icon: '🍽️' },
     { id: 'mains', name: 'Mains', icon: '🥞' },
     { id: 'bowls', name: 'Bowls', icon: '🥗' },
-    { id: 'premium', name: 'Premium', icon: '⭐' }
-  ];
+    flags.premiumItems && { id: 'premium', name: 'Premium', icon: '⭐' }
+  ].filter(Boolean);
 
   return (
     <motion.div
