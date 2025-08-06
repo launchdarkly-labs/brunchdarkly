@@ -7,6 +7,8 @@ import {  X, Settings } from 'lucide-react';
 import { handleToggleFlag } from './handleToggleFlag';
 import { useMutation } from '@tanstack/react-query';
 import { ToggleFlag } from './ToggleFlag';
+import { DropdownFlag } from './DropdownFlag';
+import { DietaryOption } from '../types';
 
 interface AdminPanelProps {
   onClose: () => void;
@@ -18,6 +20,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
   const mutation = useMutation({
     mutationFn: handleToggleFlag,
   });
+
+  const dietaryOptions: DietaryOption[] = [
+    { value: 'omnivore', label: 'Omnivore', emoji: '🍳' },
+    { value: 'vegetarian', label: 'Vegetarian', emoji: '🥗' },
+    { value: 'vegan', label: 'Vegan', emoji: '🌱' },
+    { value: 'gluten-free', label: 'Gluten-Free', emoji: '🌾' },
+  ];
 
   return (
     <AnimatePresence>
@@ -69,6 +78,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                       <div className="flex items-center gap-2">
                         {typeof flagValue === 'boolean' ? (
                           <ToggleFlag flagKey={flagKey} flagValue={flagValue} />
+                        ) : flagKey === 'dietaryPreference' ? (
+                          <DropdownFlag 
+                            flagKey={flagKey} 
+                            flagValue={String(flagValue)} 
+                            options={dietaryOptions}
+                          />
                         ) : (
                           <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                             {String(flagValue)}

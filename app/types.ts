@@ -24,3 +24,11 @@ export interface MenuItem {
   chefRecommendation?: boolean;
   special?: boolean;
 }
+
+export type DietaryPreference = 'omnivore' | 'vegetarian' | 'vegan' | 'gluten-free';
+
+export interface DietaryOption {
+  value: DietaryPreference;
+  label: string;
+  emoji: string;
+}
