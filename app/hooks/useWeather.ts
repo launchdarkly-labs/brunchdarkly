@@ -14,7 +14,7 @@ interface WeatherData {
 const fetchWeather = async (): Promise<WeatherData> => {
   const lat = 40.65;
   const lon = -73.95;
-  const apiKey = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY;
   const response = await fetch(
     `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`
   );
