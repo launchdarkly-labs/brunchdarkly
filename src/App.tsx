@@ -7,6 +7,7 @@ import { PersonalizedRecommendations } from './components/PersonalizedRecommenda
 import { BrunchMenu } from './components/BrunchMenu';
 import { WeatherWidget } from './components/WeatherWidget';
 import { UserProfile } from './components/UserProfile';
+import { AdminPanel } from './components/AdminPanel';
 
 function App() {
   const flags = useFlags();
@@ -104,29 +105,7 @@ function App() {
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-gray-900">Feature Flags</h2>
-                  <button
-                    onClick={() => setShowAdmin(false)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <X className="w-5 h-5 text-gray-500" />
-                  </button>
-                </div>
-              </div>
-              <div className="p-6 space-y-4">
-                {Object.entries(flags).map(([flagKey, flagValue]) => (
-                  <div key={flagKey} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <span className="font-medium text-gray-900 capitalize">
-                      {flagKey.replace(/([A-Z])/g, ' $1').trim()}
-                    </span>
-                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                      {String(flagValue)}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              <AdminPanel onClose={() => setShowAdmin(false)}/>
             </motion.div>
           </motion.div>
         )}
