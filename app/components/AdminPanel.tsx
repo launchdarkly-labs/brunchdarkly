@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 import {  X, Settings } from 'lucide-react';
 import { handleToggleFlag } from './handleToggleFlag';
+import { useMutation } from '@tanstack/react-query';
+import { ToggleFlag } from './ToggleFlag';
 
 interface AdminPanelProps {
   onClose: () => void;
@@ -12,6 +14,10 @@ interface AdminPanelProps {
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
   const flags = useFlags();
+
+  const mutation = useMutation({
+    mutationFn: handleToggleFlag,
+  });
 
   return (
     <AnimatePresence>
@@ -62,20 +68,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                       </div>
                       <div className="flex items-center gap-2">
                         {typeof flagValue === 'boolean' ? (
-                          <div className='cursor-pointer' onClick={() => handleToggleFlag({ flagKey, flagValue })}>
-                            <div className={`w-12 h-6 rounded-full relative transition-colors ${
-                              flagValue ? 'bg-green-500' : 'bg-gray-300'
-                            }`}>
-                              <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                                flagValue ? 'translate-x-6' : 'translate-x-0.5'
-                              }`} />
-                            </div>
-                            <span className={`text-sm font-medium ${
-                              flagValue ? 'text-green-700' : 'text-gray-500'
-                            }`}>
-                              {flagValue ? 'Enabled' : 'Disabled'}
-                            </span>
-                          </div>
+                          <ToggleFlag flagKey={flagKey} flagValue={flagValue} />
                         ) : (
                           <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                             {String(flagValue)}
