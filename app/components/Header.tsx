@@ -70,7 +70,7 @@ export const Header: React.FC = () => {
           <div className="hidden md:flex items-center space-x-4">
             <motion.div 
               className="bg-white/20 backdrop-blur rounded-full px-4 py-2 flex items-center space-x-2"
-              whileHover={{ scale: 1.05, bg: 'rgba(255,255,255,0.25)' }}
+              whileHover={{ scale: 1.05, backgroundColor: 'rgba(255,255,255,0.25)' }}
               transition={{ type: 'spring', stiffness: 300 }}
             >
               <Zap className="h-4 w-4 text-yellow-300" />

@@ -12,7 +12,7 @@ interface Props {
 export const NutritionInfo: React.FC<Props> = ({ order }) => {
   const totalCalories = order.reduce((sum, item) => sum + (item.calories || 0) * item.quantity, 0);
   const totalProtein = order.reduce((sum, item) => sum + (item.protein || 0) * item.quantity, 0);
-  const allAllergens = [...new Set(order.flatMap(item => item.allergens || []))];
+  const allAllergens = Array.from(new Set(order.flatMap(item => item.allergens || [])));
 
   return (
     <motion.div
